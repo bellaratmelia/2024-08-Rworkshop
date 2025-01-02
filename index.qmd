@@ -92,7 +92,7 @@ Packages can save us time and leverage expert-created tools without having to wr
 For this workshop, we will be using dataset stored in a CSV file called `chile_voting.csv`.
 
 ```{=html}
-<a href="https://raw.githubusercontent.com/bellaratmelia/introductory-r-socsci/main/data/chile_voting.csv" type="button" class="btn btn-success">Click here to open chile_voting.csv, and then Ctrl + S / Cmd + S to save it locally into your data folder</a>
+<a href="https://raw.githubusercontent.com/bellaratmelia/2024-08-Rworkshop/refs/heads/main/data/chile_voting.csv" type="button" class="btn btn-success">Click here to open chile_voting.csv, and then Ctrl + S / Cmd + S to save it locally into your data folder</a>
 ```
 
 ::: {.callout-note appearance="simple"}
@@ -129,5 +129,5 @@ Key variables in the dataset:
 For session 3 onwards, we will use `chile_voting_processed.csv`. This is the version that has been processed and cleaned. You can download this file below if you missed session 1 and 2. Save this inside the `data-output` folder of your project. 
 
 ```{=html}
-<a href="https://raw.githubusercontent.com/bellaratmelia/introductory-r-socsci/main/data-output/chile_voting_processed.csv" type="button" class="btn btn-info">Click here to open chile_voting_processed.CSV, and then Ctrl + S / Cmd + S to save it locally into your data-output folder</a>
+<a href="https://raw.githubusercontent.com/bellaratmelia/2024-08-Rworkshop/refs/heads/main/data-output/chile_voting_processed.csv" type="button" class="btn btn-info">Click here to open chile_voting_processed.CSV, and then Ctrl + S / Cmd + S to save it locally into your data-output folder</a>
 ```

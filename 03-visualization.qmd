@@ -1,0 +1,394 @@
+---
+title: "Data Visualization and Descriptive Stats"
+author: "Bella Ratmelia"
+format: revealjs
+---
+
+## Today's Outline
+
+1.  Descriptive Statistics
+2.  Data Visualization in ggplot using Chile voting data, including guidelines on how to choose the appropriate visualization.
+
+## Checklist when you start RStudio
+
+-   Load the project we created last session and open the R script file.
+-   Make sure that `Environment` panel is empty (click on broom icon to clean it up)
+-   Clear the `Console` and `Plots` too.
+-   Re-run the `library(tidyverse)` and `read_csv` portion in the previous session
+
+## Refresher: Loading from CSV into a dataframe
+
+Use `read_csv` from `readr` package (part of `tidyverse`) to load our data into a dataframe
+
+```{r}
+#| echo: true
+#| label: load-data
+#| message: false
+#| output: false
+
+# import tidyverse library
+library(tidyverse)
+
+# read the CSV with Chile voting data
+chile_data <- read_csv("data-output/chile_voting_processed.csv")
+
+chile_data <- chile_data |> 
+    mutate(across(c("region", "sex", "education", "vote", "age_group", "support_level"), as.factor))
+
+#reordering
+chile_data <- chile_data |> 
+    mutate(education = factor(education, 
+                         levels = c("P", "S", "PS"), 
+                         ordered = TRUE))
+
+# peek at the data, pay attention to the data types!
+glimpse(chile_data)
+```
+
+## Basic R Functions for Descriptive Statistics
+
+Descriptive statistics provide summaries about the sample and observations made. These summaries can be quantitative (summary statistics) or visual (graphs). 
+
+Let's explore some basic R functions for descriptive statistics using our Chile voting data.
+
+-   `mean()`: arithmetic average
+-   `median()`: middle value
+-   `sd()`: standard deviation
+-   `var()`: variance
+-   `range()`: range of values
+-   `IQR()`: interquartile range
+-   `summary()`: provides a summary of descriptive statistics
+-   `Mode()` function from `DescTools` package: the most frequently occuring value ^[R doesn't have built-in functions for mode, so we need `DescTools` package to get this function]
+
+## Exploring Age Distribution
+
+Let's start by examining the `age` variable in our dataset.
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+library(DescTools)
+
+# Basic statistics
+mean_age <- mean(chile_data$age, na.rm = TRUE)
+median_age <- median(chile_data$age, na.rm = TRUE)
+sd_age <- sd(chile_data$age, na.rm = TRUE)
+range_age <- range(chile_data$age, na.rm = TRUE)
+iqr_age <- IQR(chile_data$age, na.rm = TRUE)
+mode_age <- DescTools::Mode(chile_data$age, na.rm = TRUE)
+
+# Print results
+cat("Mean age:", mean_age, "\n")
+cat("Median age:", median_age, "\n")
+cat("Standard deviation of age:", sd_age, "\n")
+cat("Range of age:", range_age[1], "to", range_age[2], "\n")
+cat("Interquartile range of age:", iqr_age, "\n")
+cat("Most frequently occuring age:", mode_age, "\n")
+
+# Summary statistics
+summary(chile_data$age)
+```
+
+## Interpreting Age Statistics
+
+Some possible interpretation:
+
+-   Median is lower than mean, suggesting a slight skew towards older ages
+-   Mode is much lower than both mean and median, indicating a cluster of young adults
+-   With a standard deviation of about 14.67 years, we can expect roughly two-thirds of the participants to fall between 23.62 and 52.96 years old
+-   Middle 50% of participants fall between 25 and 49 years old
+
+It's much easier if we have a graph to visualize these interpretations!
+
+## Visualizing data with ggplot
+
+-   `ggplot` is plotting package that is included inside `tidyverse` package
+
+-   works best with data in the long format, i.e., a column for all the dimensions/measures and another column for the value for each dimension/measure.
+
+```{r}
+#| echo: true
+#| output-location: slide
+chile_data |> 
+    ggplot(aes(x = age)) +
+    geom_bar(fill = "lightblue") +
+    labs(title = "Age distribution of respondents",
+         x = "Age",
+         y = "Number of Respondents") +
+    theme_minimal()
+```
+
+## Anatomy of ggplot code
+
+Charts built with ggplot must include the following:
+
+```{.r code-line-numbers="|1|2|3|4-6|7"}
+chile_data |> # <1>
+    ggplot(aes(x = age)) + # <2>
+    geom_bar(fill = "lightblue") + # <3>
+    labs(title = "Age distribution of respondents", # <4>
+         x = "Age", # <4>
+         y = "Count") + # <4>
+    theme_minimal() # <5>
+```
+
+1.  **Data** - the dataframe/tibble to visualize.
+
+2.  **Aesthetic mappings (aes)** - describes which variables are mapped to the x, y axes, alpha (transparency) and other visual aesthetics.
+
+3.  **Geometric objects (geom)** - describes how values are rendered; as bars, scatterplot, lines, etc.
+
+4.  Provide titles and labels to your graph
+
+5.  (Optional) apply a theme/look to your graph
+
+
+## Going back to our data
+
+Our PI has asked us to generate visualizations to address these questions about the Chile voting data. The PI also has asked us to write down our interpretation of the visualizations.
+
+1.  What's the distribution of respondents' `statusquo` support?
+2.  What's the distribution of `votes`?
+3.  What's the percentage of the voting intentions on each region?
+4.  Is there any major divide in terms of support for the statusquo across age? Visualize the distribution of `age` and `statusquo`.
+5.  What does the voting intention look like across different education level? Visualize the distribution of `vote` intention on various `education` level.
+6.  Do people's voting intention matches their level of support to the status quo? Compare the distribution of `statusquo` across different `vote` intentions.
+
+## Tip: open the ggplot cheatsheet
+
+::: callout-tip
+**A strategy I'd like to recommend:** briefly read over the `ggplot2` documentation and have them open on a separate tab. Figure out the type of variables you need to visualize (discrete or continuous) to quickly identify which visualization would make sense.
+:::
+
+![](images/ggplot-cheatsheet.jpg){width="60%"}
+
+[ggplot documentation link](https://rstudio.github.io/cheatsheets/html/data-visualization.html)
+
+## Task #1
+
+What's the distribution of our respondents' `statusquo`?
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# One continuous variable
+chile_data |> 
+    ggplot(aes(x = statusquo)) +
+    geom_histogram(binwidth = 0.1, fill = "pink", color = "maroon") +
+    labs(title = "Distribution of Status Quo Scores",
+       x = "Status Quo Score",
+       y = "Count")
+```
+
+## Task #2
+
+What's the distribution of `votes`?
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# One discrete/categorical variable
+chile_data |> 
+    ggplot(aes(x = vote)) +
+    geom_bar(fill = "skyblue") +
+    labs(title = "Distribution of Votes",
+       x = "Vote",
+       y = "Count")
+```
+
+
+## Task #3
+
+What's the percentage of the voting intentions on each `region`?
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Showing proportions / percentage as part of whole
+chile_data %>%
+  ggplot(aes(x = vote, fill = region)) +
+  geom_bar(position = "fill") +
+  labs(title = "Distribution of Votes Across Regions",
+         x = "Vote",
+         y = "Proportion",
+         fill = "Region") +
+  theme_minimal()
+```
+## Group exercise #1 (solo attempts also ok)
+
+Visualize the `vote` intention by `sex`. Make sure it is shown as proportion. 
+
+```{r}
+#| echo: true
+#| output-location: slide
+#| code-fold: true
+
+chile_data %>%
+    ggplot(aes(x = vote, fill = sex)) +
+    geom_bar(position = "fill") + 
+    labs(title = "Proportion of Sex for each voting intention",
+       x = "vote intention",
+       y = "percentage") +
+    theme_minimal()
+```
+
+
+## Task #4
+
+Is there any major divide in terms of support for the statusquo across age? Visualize the distribution of `age` and `statusquo`.
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Two variables - both continuous
+chile_data |>
+    ggplot(aes(x = statusquo, y = age, color=support_level)) +
+    geom_point(alpha = 0.5) +
+    labs(title = "Age vs Status Quo Score",
+       x = "Status Quo Score",
+       y = "Age")
+```
+
+
+## Task #5
+What does the voting intention look like across different education level? Visualize the distribution of `vote` intention on various `education` level.
+
+We can achieve this in two ways!
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Two variables - both discrete/categorical
+
+chile_data |> 
+    ggplot(aes(x = education, y = vote)) +
+    geom_jitter(color="tomato", alpha=0.5) +
+    labs(title = "Voting intention Distribution by Education level",
+       x = "Education Level",
+       y = "Voting intention")
+```
+
+## Alternative way
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Two variables - both discrete/categorical
+# Alternative way
+chile_data |> 
+    ggplot(aes(x = education, fill = vote)) +
+    geom_bar(position = "dodge") +
+    labs(title = "Voting intention Distribution by Education Level",
+       x = "Education Level",
+       y = "Count") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Facets for multiple variables
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Faceting and multiple variables
+chile_data |> 
+    ggplot(aes(x = age, y = statusquo, color = vote)) +
+    geom_point(alpha = 0.5) +
+    facet_wrap(~ education) +
+    labs(title = "Income vs Status Quo Score by Education Level",
+       x = "Age",
+       y = "Status Quo Score")
+```
+
+## Task #6
+Do people's voting intention matches their level of support to the status quo? Compare the distribution of `statusquo` across different `vote` intentions.
+
+Let's layer two kinds of visualization here:
+
+```{r}
+#| echo: true
+#| output-location: slide
+
+# Two variables - one categorical, one continuous
+chile_data |> 
+    ggplot(aes(x = vote, y = statusquo)) +
+    geom_boxplot(fill = "pink") +
+    geom_jitter(alpha = 0.4, color = "maroon") + 
+    labs(title = "Distribution Status Quo Score by voting intention",
+       x = "Voting intention",
+       y = "Status Quo Support level")
+```
+
+## Group Exercise #2 (solo attempts ok)
+
+Update the visualization from task #6 to the following:
+
+-  Replace the boxplot with violin plot (check out ggplot documentation)
+-  Change the fill color for both the violin plot and jitters to other color of your choice.
+
+```{r}
+#| echo: true
+#| output-location: slide
+#| code-fold: true
+
+# Two variables - one categorical, one continuous
+chile_data |> 
+    ggplot(aes(x = vote, y = statusquo)) +
+    geom_violin(fill = "lightblue") +
+    geom_jitter(alpha = 0.4, color = "navy") + 
+    labs(title = "Distribution Status Quo Score by voting intention",
+       x = "Voting intention",
+       y = "Status Quo Support level")
+```
+
+## Group Exercise #3 (solo attempts ok)
+
+Visualize the distribution of `age_group` for each `vote` intention. To show the difference between sex, show the visualization with `sex` facet.
+
+
+```{r}
+#| echo: true
+#| output-location: slide
+#| code-fold: true
+
+chile_data |> 
+    ggplot(aes(x = vote, fill = age_group)) +
+    geom_bar(alpha = 0.7, position = "fill") +
+    facet_wrap( ~ sex) + 
+    labs(title = "Proportion of age groups for each voting intentions by sex",
+       x = "Voting intention",
+       y = "Proportion",
+       fill = "Age Group") +
+    theme_minimal()
+
+```
+
+## Is fancier = better?
+
+Fancier, more complicated visualization does not necessarily mean better!
+
+Take a look at this award-winning visualization by [Simon Scarr](http://www.simonscarr.com/iraqs-bloody-toll)
+
+```{=html}
+<iframe width="1500" height="600" src="http://www.simonscarr.com/iraqs-bloody-toll" title="Simon Scarr's visualization"></iframe>
+```
+
+## Strategy for data visualization with ggplot
+
+1.  Have the ggplot documentation/cheatsheet open
+2.  Decide on how many variables are involved. Is it just one? two? more than two?
+3.  Determine whether the variables are categorical or continuous. If you have more than one, are they both categorical? one categorical + one continuous?
+4.  Refer to the documentation to see which type of visualization would make sense for your variables.
+
+# End of Session 3!
+
+Check out the [R Graph gallery](https://r-graph-gallery.com/) for inspiration and code samples!
+
+Next session: statistical tests in R using Chile voting data
